@@ -112,6 +112,7 @@ def blendPdf():
     editPng.reCrop(numQ, numOfAnswers, ouput_directory, detailsBetweenQ)
     mixAnswers = mixfiles(ouput_directory, numQ, numOfAnswers)
     pathOfMerge = editFiles.combineFilestoPages(mixAnswers, ouput_directory,numOfAnswers)
+    #TODO make .png to .pdf and add pages to big pdf
     editFiles.delete_files(mixAnswers)
     editFiles.png_to_pdf(pathOfMerge, ouput_directory, pathOfPdf)
     editFiles.delete_files([ouput_directory + 'result.png'])
