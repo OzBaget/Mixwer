@@ -57,7 +57,7 @@ def find_index(words, target_word, num,answersId):
     return find_word_n_times(words, target_word, num,answersId)
 
 
-def first_words(path, answersId,fromQ=True):
+def find_first_words(path, answersId, fromQ=True):
     image = cv2.imread(path)
     boxes = pytesseract.image_to_data(image, lang='heb', config='--oem 2 --psm 6',
                                       output_type=pytesseract.Output.DICT)
@@ -78,7 +78,7 @@ def first_words(path, answersId,fromQ=True):
             if first_space:
                 first_space = False
 
-    if fromQ:
+    if fromQ:#intilize the mistakes of ocr
         first_words_from_Q(first_words_boxes,answersId)
         for i in range(len(first_words_boxes['text'])):
             for j in range(len(answersId) - 1):
@@ -97,3 +97,11 @@ def first_words_from_Q(first_word_boxes,answersId):
     first_word_boxes['width'] = first_word_boxes['width'][index_first_q:]  # Extract the bounding boxes for each word
     first_word_boxes['height'] = first_word_boxes['height'][index_first_q:]
     return first_word_boxes
+
+def findNumAnswers(pathOfMerge):
+    first_words = find_first_words(pathOfMerge, [], False)
+    try:
+            if find_index(first_words['text'][first_words['text'].index("שאלה"):],"ה.",1,["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]) != -1:
+                return 5,["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
+    except:
+        return 4,["שאלה", "א.", "ב.", "ג.", "ד.", "A"]

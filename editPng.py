@@ -5,7 +5,7 @@ import numpy as np
 def reCrop(numQ,numOfAnswers,ouput_directory,detailsBetweenQ):
     for i in range(1,numQ+1):
         for j in range(1,numOfAnswers+1):
-            pathImage = ouput_directory + "qustion_{}_answer_{}_image.png".format(i, j)
+            pathImage = ouput_directory + "question_{}_answer_{}.png".format(i, j)
             # Crop the space between char and answer
             cropSpaceAnswerPng(pathImage)
             # Crop the space between char and answer
