@@ -1,12 +1,20 @@
+import numpy as np
 import pytesseract
 import cv2
 
-def find_word_n_times(words, target_word, num,answersId):
-    if target_word == answersId[0] and num == 1:
-        if target_word in words:
-            return words.index(target_word)
+def find_index(words, target_word, answersId,num=1):
+    if target_word == answersId[0]: # for "שאלה"
+        arr = np.array(words)
+
+        x = np.where(arr == target_word)
+        return x[0][num-1]
         # return False
-    if answersId[0] not in words[1:]:  # for the last Que
+    else:
+        if words.count(target_word)>1:
+            arr = np.array(words)
+
+            x = np.where(arr == target_word)
+            return x[0][-1]
         if not target_word in words:
             for i, word in enumerate(words):
                 if target_word[0] == word:
@@ -14,28 +22,7 @@ def find_word_n_times(words, target_word, num,answersId):
             for i, word in enumerate(words):
                 if word != '' and target_word[0] in word[0]:
                     return i
-            beforeOne = find_word_n_times(words, answersId[answersId.index(target_word) - 1], num,answersId)
-            if beforeOne:
-                return beforeOne + 1
-            return beforeOne
         return words.index(target_word)
-    if num == 1 and target_word != answersId[0]:  # the last iterative
-        index = words.index(target_word)
-        afterQ = find_word_n_times(words, answersId[0], num + 1,answersId)
-        if index < afterQ:
-            return index
-        for i, word in enumerate(words):
-            if i < afterQ and target_word[0] == word:
-                return i
-        for i, word in enumerate(words):
-            if i < afterQ and target_word[0] in word[0]:
-                return i
-        if target_word != answersId[-1]:
-            return find_word_n_times(words, answersId[answersId.index(target_word) + 1], num,answersId) - 1
-        else:
-            return find_word_n_times(words, answersId[answersId.index(target_word) - 1], num,answersId) + 1
-    index_this_Q = find_word_n_times(words[1:], answersId[0], 1,answersId)
-    return 1 + index_this_Q + find_word_n_times(words[index_this_Q + 1:], target_word, num - 1,answersId)
 
 
 def last_occurrence(word, array):
@@ -51,10 +38,7 @@ def countQuestion(first_words):
     return first_words['text'].count("שאלה")
 
 
-def find_index(words, target_word, num,answersId):
-    if target_word == answersId[-1]:
-        return find_word_n_times(words, answersId[0], num + 1,answersId)
-    return find_word_n_times(words, target_word, num,answersId)
+
 
 
 def find_first_words(path, answersId, fromQ=True):
@@ -79,18 +63,26 @@ def find_first_words(path, answersId, fromQ=True):
                 first_space = False
 
     if fromQ:#intilize the mistakes of ocr
-        first_words_from_Q(first_words_boxes,answersId)
+        start_first_words_from_Q(first_words_boxes, answersId)
         for i in range(len(first_words_boxes['text'])):
             for j in range(len(answersId) - 1):
                 if answersId[j] in first_words_boxes['text'][i]:
                     first_words_boxes['text'][i] = answersId[j]
                     break
+        arr = np.array(first_words_boxes['text'])
+
+        x = np.where(arr == answersId[0])
+
+        for i in range(len(x[0])-1):
+            if x[0][i]+1 == x[0][i+1]:
+                first_words_boxes['text'][x[0][i+1]] = ''
+
 
     return first_words_boxes
 
 
-def first_words_from_Q(first_word_boxes,answersId):
-    index_first_q = find_index(first_word_boxes['text'], answersId[0], 1,answersId)
+def start_first_words_from_Q(first_word_boxes, answersId):
+    index_first_q = find_index(first_word_boxes['text'], answersId[0],answersId)
     first_word_boxes['text'] = first_word_boxes['text'][index_first_q:]  # Extract the bounding boxes for each word
     first_word_boxes['left'] = first_word_boxes['left'][index_first_q:]  # Extract the bounding boxes for each word
     first_word_boxes['top'] = first_word_boxes['top'][index_first_q:]  # Extract the bounding boxes for each word
@@ -101,7 +93,7 @@ def first_words_from_Q(first_word_boxes,answersId):
 def findNumAnswers(pathOfMerge):
     first_words = find_first_words(pathOfMerge, [], False)
     try:
-            if find_index(first_words['text'][first_words['text'].index("שאלה"):],"ה.",1,["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]) != -1:
+            if find_index(first_words['text'][first_words['text'].index("שאלה"):],"ה.",["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]) != -1:
                 return 5,["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
     except:
         return 4,["שאלה", "א.", "ב.", "ג.", "ד.", "A"]

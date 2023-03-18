@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+import editFiles
 
 
 def reCrop(numQ,numOfAnswers,ouput_directory,detailsBetweenQ):
@@ -98,4 +101,38 @@ def rewriteAnswer(path,i,location):
     cv2.imwrite(path, imageQ)
     cv2.putText(imageQ, text, (imageQ.shape[1] - 170, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.imwrite(path, imageQ)
+
+def createAnswersPage(path_answers):
+    PAGE_HEIGHT = 1805
+    PAGE_WIDTH = 1700
+    image_array =[]
+    num_answer = 1
+    prefix_path = path_answers[1][:path_answers[1].rfind("\\")+1]
+    current_path = ""
+
+    num_q = 0
+    for cpath in path_answers:
+        if cpath[cpath.rfind("_") + 1:-4] == 'prefix':
+            num_answer = 0
+        if cpath[cpath.rfind("_") + 1:-4] == '1':
+            num_q = cpath[cpath.find("_")+1:cpath.rfind("_")-7]
+            blank = Image.new("RGBA", (PAGE_WIDTH, 70), (255, 255, 255, 255))
+            text = "{} :{}".format(num_answer
+                                  ,num_q)
+            font = ImageFont.truetype('arial.ttf', 40)
+            draw = ImageDraw.Draw(blank)
+            text_width, text_height = draw.textsize(text, font=font)
+
+            text_x = (PAGE_WIDTH - text_width) / 2
+            text_y = (70 - text_height) / 2
+
+            # Draw text on the image
+            draw.text((text_x, text_y), text, fill=(0, 0, 0), font=font)
+            current_path = prefix_path+fr"answer_{num_q}.png"
+            blank.save(current_path)
+            image_array.append(current_path)
+        num_answer+=1
+
+    return editFiles.combineFilestoPages(image_array,prefix_path,1000,"AnswerPage"),image_array
+
 

@@ -15,12 +15,19 @@ def rightFirstWordToBox(path,answersId):
         return 1530
 
 
-def wordToBox(text, first_word_boxes, answersId,num=1,):
+def wordToBox(text, first_word_boxes, answersId,num = 1):
     value_first_word = copy.deepcopy(first_word_boxes)
     words = value_first_word['text']
     y = value_first_word['top']
     l = first_word_boxes['left']
     h = value_first_word['height']
-    start_index = listFinds.find_index(words, text, num, answersId)
+    start_index = listFinds.find_index(words, text, answersId,num)
+    '''    if text == answersId[0]:
+        try:
+            before_index = listFinds.find_index(words, text, answersId,num-1)
+            if  start_index == before_index+1:
+                start_index = listFinds.find_index(words, text, answersId,num+1)
+        except:
+            pass'''
     x_start, y_start, x_end, y_end = 0, y[start_index], l[start_index], y[start_index] + h[start_index]
     return x_start, y_start, x_end, y_end

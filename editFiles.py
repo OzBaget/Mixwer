@@ -1,19 +1,29 @@
 from PIL import Image
 from pdf2image import convert_from_path
 import os
+from PyPDF4 import PdfFileMerger
+
 from PyPDF2 import PdfReader, PdfWriter
 
 
-def png_to_pdf(sourcePath, destPath,pathOfPdf):
+def merge_pdf(arrayPath,nameFile):
+    merger = PdfFileMerger()
+    for pdf_file in arrayPath:
+        # Append PDF files
+        merger.append(pdf_file)
+
+    # Write out the merged PDF file
+    merger.write(nameFile+".pdf")
+    merger.close()
+
+
+#convert .png to .pdf
+def png_to_pdf(sourcePath):
     png = Image.open(sourcePath)
     im_1 = png.convert('RGB')
-    fileName = pathOfPdf[pathOfPdf.rfind("\\") + 1:-4] + " מעורבל" + pathOfPdf[-4:]
-    destPath = destPath + fileName
-    im_1.save(destPath)
-    split_pdf(destPath)
+    im_1.save(sourcePath[:-4]+".pdf")
+    return sourcePath[:-4]+".pdf"
 
-def split_pdf(pathOfPdf):
-    pdf_to_png(pathOfPdf,pathOfPdf[pathOfPdf.rfind("\\") + 1])
 
 def pdf_to_png(pathSource, pathDest):
     pages = convert_from_path(pathSource)
@@ -55,12 +65,12 @@ def combineFiles(arrayPath,output_path):
 
 
 
-def combineFilestoPages(array_path, output_dir,numA):
+def combineFilestoPages(array_path, output_dir,numA,prefixFile = "final_page"):
     page_num = 1
     total_height = 0
     images_to_combine = []
     total_page_path  = []
-    PAGE_HEIGHT = 3308
+    PAGE_HEIGHT = 1805
     PAGE_WIDTH = 1700
     BEGIN_HEIGHT = 200
     for i, path in enumerate(array_path):
@@ -71,9 +81,7 @@ def combineFilestoPages(array_path, output_dir,numA):
             padding = Image.new("RGBA", (PAGE_WIDTH, padding_height), (255, 255, 255, 255))
             images_to_combine.append(padding)
 
-
-
-            padding = Image.open(array_path[1][:array_path[1].rfind('\\')+1]+"beginPage.png")
+            padding = Image.open("beginPage.png")
             images_to_combine.insert(0,padding)
 
             # Combine the images and save to a new file
@@ -83,7 +91,7 @@ def combineFilestoPages(array_path, output_dir,numA):
                 result.paste(imgtemp, (0, y_offset))
                 y_offset += imgtemp.size[1]
 
-            output_path_current = os.path.join(output_dir, f"page_{page_num}.png")
+            output_path_current = os.path.join(output_dir, f"{prefixFile}_{page_num}.png")
             result.save(output_path_current)
 
             total_page_path.append(output_path_current)
@@ -110,7 +118,7 @@ def combineFilestoPages(array_path, output_dir,numA):
         padding = Image.new("RGBA", (PAGE_WIDTH, padding_height), (255, 255, 255, 255))
         images_to_combine.append(padding)
 
-        padding = Image.open(array_path[1][:array_path[1].rfind('\\') + 1] + "beginPage.png")
+        padding = Image.open("beginPage.png")
         images_to_combine.insert(0, padding)
 
         # Combine the images and save to a new file
@@ -120,9 +128,9 @@ def combineFilestoPages(array_path, output_dir,numA):
             result.paste(img, (0, y_offset))
             y_offset += img.size[1]
 
-        output_path = os.path.join(output_dir, f"page_{page_num}.png")
-        result.save(output_path)
-
+        output_path_current = os.path.join(output_dir, f"{prefixFile}_{page_num}.png")
+        result.save(output_path_current)
+        total_page_path.append(output_path_current)
         page_num += 1
 
     return total_page_path

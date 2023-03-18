@@ -5,10 +5,11 @@ import os
 import listFinds
 import editPng
 import editBox
+import numpy as np
 
 athOfPdf = ""
 numOfAnswers = 5
-answersId=[]
+answersId = []
 pageCode = True
 detailsBetweenQ = False
 input_directory = "C:\\Users\\izeik\\Pictures\\אוטומטים לא מעורבל\\"
@@ -52,7 +53,7 @@ def export_questions(path, numQ, first_words):
         coordCurrent = coordNext
         # if it is the last answer in the question
         if currentQ != numLastQ:
-            coordNext = editBox.wordToBox(answersId[0], first_words,answersId, currentQ + 1)
+            coordNext = editBox.wordToBox(answersId[0], first_words, answersId, currentQ + 1)
             cropped_image = image[coordCurrent[1] - 10:coordNext[1] - 10, 0:image.shape[1]]
         else:
             cropped_image = image[coordCurrent[1] - 10:image.shape[0], 0:image.shape[1]]
@@ -79,7 +80,7 @@ def export_answers(path):
         coordCurrent = coordNext
         # if it is the last answer in the qestion
         if charAns != answersId[-1]:
-            coordNext = editBox.wordToBox(charAns, first_words,answersId, 1)
+            coordNext = editBox.wordToBox(charAns, first_words, answersId)
         else:
             coordNext = [image.shape[1], image.shape[0], image.shape[1], image.shape[0]]
         cropped_image = image[coordCurrent[1] - 10:coordNext[1] - 10, 0:image.shape[1]]
@@ -95,27 +96,50 @@ def export_answers(path):
             print(fr"ERROR question - {numQ} answer - {answersId.index(charAns)}")
 
 
-
-
 def blendPdf():
-    pages = editFiles.pdf_to_png(pathOfPdf, ouput_directory)
-    pathOfMerge = editFiles.combineFiles(pages, ouput_directory + 'result')
-    editFiles.delete_files(pages)
-    global numOfAnswers,answersId
-    numOfAnswers,answersId = listFinds.findNumAnswers(pathOfMerge)
+    # Conver test .pdf to page.png
+    path_originial_pages_png = editFiles.pdf_to_png(path_original_pdf, ouput_directory)
+    #TODO dont merge the pages because the ocr is less good, see what to do that it will be splited pages
+    # Merge the pages
+    pathOfMerge = editFiles.combineFiles(path_originial_pages_png, ouput_directory + 'result')
+
+    # Find how much q and a there are
+    global numOfAnswers, answersId
+    numOfAnswers, answersId = listFinds.findNumAnswers(pathOfMerge)
     first_words_array = listFinds.find_first_words(pathOfMerge, answersId)
     numQ = listFinds.countQuestion(first_words_array)
+
+    # make each q to .png
     arrayOfQuestions = export_questions(pathOfMerge, numQ, first_words_array)
+    # make each a to .png
     for pathQ in arrayOfQuestions:
         export_answers(pathQ)
-    editFiles.delete_files(arrayOfQuestions)
+    # crop each a
     editPng.reCrop(numQ, numOfAnswers, ouput_directory, detailsBetweenQ)
+
+    # Mix the order of the answer
     mixAnswers = mixfiles(ouput_directory, numQ, numOfAnswers)
-    pathOfMerge = editFiles.combineFilestoPages(mixAnswers, ouput_directory,numOfAnswers)
-    #TODO make .png to .pdf and add pages to big pdf
-    editFiles.delete_files(mixAnswers)
-    editFiles.png_to_pdf(pathOfMerge, ouput_directory, pathOfPdf)
+
+    # Make answers and questions to pages .png
+    paths_of_pages = editFiles.combineFilestoPages(mixAnswers, ouput_directory, numOfAnswers)
+
+    # Add answers page
+    answer_page_path, path_answers = editPng.createAnswersPage(mixAnswers)
+    path_answers = path_answers + answer_page_path
+    paths_of_pages = paths_of_pages + answer_page_path
+    # Make .png to .pdf
+    paths_of_pages_pdf = []
+    for current_page in paths_of_pages:
+        paths_of_pages_pdf.append(editFiles.png_to_pdf(current_page))
+
+    editFiles.merge_pdf(paths_of_pages_pdf,
+                        ouput_directory + path_original_pdf[path_original_pdf.rfind("\\") + 1:-4] + " מעורבל")
+
+    editFiles.delete_files(path_originial_pages_png)
+    editFiles.delete_files(paths_of_pages)
+    editFiles.delete_files(arrayOfQuestions)
     editFiles.delete_files([ouput_directory + 'result.png'])
+    editFiles.delete_files(mixAnswers)
 
 
 def main():
@@ -127,14 +151,13 @@ def main():
     for filename in os.listdir(input_directory):
         if filename.endswith(".pdf"):
             pdf_file_path = os.path.join(input_directory, filename)
-            global pathOfPdf
-            pathOfPdf = pdf_file_path
-            fileNameEnd = pathOfPdf[pathOfPdf.rfind("\\") + 1:-4] + " מעורבל" + pathOfPdf[-4:]
+            global path_original_pdf
+            path_original_pdf = pdf_file_path
+            fileNameEnd = path_original_pdf[path_original_pdf.rfind("\\") + 1:-4] + " מעורבל" + path_original_pdf[-4:]
             destPath = ouput_directory + fileNameEnd
-            # if os.path.isfile(destPath):
-            #   print("EXIST {}".format(destPath))
-            #  continue
-
+            if os.path.isfile(destPath):
+                print("EXIST {}".format(destPath))
+                continue
             blendPdf()
             print("SUCCESS {}".format(fileNameEnd))
 
