@@ -5,6 +5,8 @@ from PyPDF4 import PdfFileMerger
 
 from PyPDF2 import PdfReader, PdfWriter
 
+import editPng
+
 
 def merge_pdf(arrayPath,nameFile):
     merger = PdfFileMerger()
@@ -24,7 +26,7 @@ def png_to_pdf(sourcePath):
     im_1.save(sourcePath[:-4]+".pdf")
     return sourcePath[:-4]+".pdf"
 
-
+#Conver .pdf to .png and crop the begin and the end of the page
 def pdf_to_png(pathSource, pathDest):
     pages = convert_from_path(pathSource)
     paths = []
@@ -34,6 +36,7 @@ def pdf_to_png(pathSource, pathDest):
         page = page.crop(crop_box)
         paths.append(pathDest + f'page_{i}.png')
         page.save(pathDest + f'page_{i}.png', 'PNG')
+        editPng.cropSpaceEndPng(pathDest + f'page_{i}.png')
     return paths
 
 
@@ -70,11 +73,24 @@ def combineFilestoPages(array_path, output_dir,numA,prefixFile = "final_page"):
     total_height = 0
     images_to_combine = []
     total_page_path  = []
+    topAndBottonArray  = []
     PAGE_HEIGHT = 1805
     PAGE_WIDTH = 1700
     BEGIN_HEIGHT = 200
     for i, path in enumerate(array_path):
         img = Image.open(path)
+        #If the Q is bigger than page, we have to split it
+        if  img.size[1] > PAGE_HEIGHT-BEGIN_HEIGHT:
+            rest_page = PAGE_HEIGHT- total_height - BEGIN_HEIGHT
+            topAndBotton = editPng.crop_png_middle(path,int(rest_page/2))
+            if not topAndBotton:
+                topAndBotton = editPng.crop_png_middle(path,int(rest_page/2),True)
+            array_path.insert(i+1,topAndBotton[0])
+            array_path.insert(i+2,topAndBotton[1])
+            topAndBottonArray.insert(0,topAndBotton[0])
+            topAndBottonArray.insert(0,topAndBotton[1])
+
+            continue
         if total_height + img.size[1] > PAGE_HEIGHT-BEGIN_HEIGHT:
             # Add white padding to fill the remaining space in the page height
             padding_height = PAGE_HEIGHT-BEGIN_HEIGHT - total_height
@@ -104,7 +120,7 @@ def combineFilestoPages(array_path, output_dir,numA,prefixFile = "final_page"):
         images_to_combine.append(img)
         total_height += img.size[1]
 
-        # Add white blank after every 6 files
+        # Add white blank after every Q files
         if (i + 1) % (numA+1) == 0:
             if total_height + 70 < PAGE_HEIGHT - BEGIN_HEIGHT:
                 padding = Image.new("RGBA", (PAGE_WIDTH, 70), (255, 255, 255, 255))
@@ -132,5 +148,4 @@ def combineFilestoPages(array_path, output_dir,numA,prefixFile = "final_page"):
         result.save(output_path_current)
         total_page_path.append(output_path_current)
         page_num += 1
-
     return total_page_path

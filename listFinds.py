@@ -2,15 +2,18 @@ import numpy as np
 import pytesseract
 import cv2
 
-def find_index(words, target_word, answersId,num=1):
-    if target_word == answersId[0]: # for "שאלה"
+
+def find_index(words, target_word, answersId, num=1):
+    if target_word == answersId[0]:  # for "שאלה"
+        if words.count("שאלה" == 0):
+            return -1
         arr = np.array(words)
 
         x = np.where(arr == target_word)
-        return x[0][num-1]
+        return x[0][num - 1]
         # return False
     else:
-        if words.count(target_word)>1:
+        if words.count(target_word) > 1:
             arr = np.array(words)
 
             x = np.where(arr == target_word)
@@ -33,15 +36,7 @@ def last_occurrence(word, array):
     except ValueError:
         return -1
 
-
-def countQuestion(first_words):
-    return first_words['text'].count("שאלה")
-
-
-
-
-
-def find_first_words(path, answersId, fromQ=True):
+def find_first_words(path, answersId, fromQ = True, disable_consecutive_q = False):
     image = cv2.imread(path)
     boxes = pytesseract.image_to_data(image, lang='heb', config='--oem 2 --psm 6',
                                       output_type=pytesseract.Output.DICT)
@@ -62,27 +57,28 @@ def find_first_words(path, answersId, fromQ=True):
             if first_space:
                 first_space = False
 
-    if fromQ:#intilize the mistakes of ocr
+    if fromQ:  # intilize the mistakes of ocr
         start_first_words_from_Q(first_words_boxes, answersId)
         for i in range(len(first_words_boxes['text'])):
             for j in range(len(answersId) - 1):
                 if answersId[j] in first_words_boxes['text'][i]:
                     first_words_boxes['text'][i] = answersId[j]
                     break
+
+    if disable_consecutive_q:    # If "שאלה" after "שאלה" delete it
         arr = np.array(first_words_boxes['text'])
 
         x = np.where(arr == answersId[0])
 
-        for i in range(len(x[0])-1):
-            if x[0][i]+1 == x[0][i+1]:
-                first_words_boxes['text'][x[0][i+1]] = ''
-
+        for i in range(len(x[0]) - 1):
+            if x[0][i] + 1 == x[0][i + 1]:
+                first_words_boxes['text'][x[0][i + 1]] = ''
 
     return first_words_boxes
 
 
 def start_first_words_from_Q(first_word_boxes, answersId):
-    index_first_q = find_index(first_word_boxes['text'], answersId[0],answersId)
+    index_first_q = find_index(first_word_boxes['text'], answersId[0], answersId)
     first_word_boxes['text'] = first_word_boxes['text'][index_first_q:]  # Extract the bounding boxes for each word
     first_word_boxes['left'] = first_word_boxes['left'][index_first_q:]  # Extract the bounding boxes for each word
     first_word_boxes['top'] = first_word_boxes['top'][index_first_q:]  # Extract the bounding boxes for each word
@@ -90,10 +86,12 @@ def start_first_words_from_Q(first_word_boxes, answersId):
     first_word_boxes['height'] = first_word_boxes['height'][index_first_q:]
     return first_word_boxes
 
+
 def findNumAnswers(pathOfMerge):
     first_words = find_first_words(pathOfMerge, [], False)
     try:
-            if find_index(first_words['text'][first_words['text'].index("שאלה"):],"ה.",["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]) != -1:
-                return 5,["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
+        if find_index(first_words['text'][first_words['text'].index("שאלה"):], "ה.",
+                      ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]) != -1:
+            return 5, ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
     except:
-        return 4,["שאלה", "א.", "ב.", "ג.", "ד.", "A"]
+        return 4, ["שאלה", "א.", "ב.", "ג.", "ד.", "A"]
