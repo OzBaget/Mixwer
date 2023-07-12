@@ -22,12 +22,37 @@ def find_index(words, target_word, answersId, num=1):
             for i, word in enumerate(words):
                 if target_word[0] == word:
                     return i
+            if answersId.index(target_word) == 1:
+                index_before = -1
+            else:
+                index_before =find_index(words,answersId[answersId.index(target_word)-1],answersId)
+            try:
+                if target_word != answersId[-2]:
+                    index_after =find_index(words,answersId[answersId.index(target_word)+1],answersId,2)
+                    i = index_after
+                    while i > 0:
+                        if word != '' and target_word[0] in words[i][0]:
+                            return i
+                        i -= 1
+                else:
+                    i = index_before
+                    while i < len(words):
+                        if word != '' and target_word[0] in words[i][0]:
+                            return i
+                        i += 1
+            except:
+                pass
             for i, word in enumerate(words):
-                if word != '' and target_word[0] in word[0]:
+                if index_before < i and word in ["-",".","--","\\\\","(\\"]:
                     return i
         return words.index(target_word)
 
-
+def find_index_answer(words):
+    for i,word in enumerate(words):
+        if word == "":
+            pass
+        else:
+            return i
 def last_occurrence(word, array):
     array_reversed = array[::-1]
     try:
@@ -36,7 +61,7 @@ def last_occurrence(word, array):
     except ValueError:
         return -1
 
-def find_first_words(path, answersId, fromQ = True, disable_consecutive_q = False):
+def find_first_words(path, answersId=[], fromQ = True, disable_consecutive_q = False):
     image = cv2.imread(path)
     boxes = pytesseract.image_to_data(image, lang='heb', config='--oem 2 --psm 6',
                                       output_type=pytesseract.Output.DICT)
@@ -90,8 +115,12 @@ def start_first_words_from_Q(first_word_boxes, answersId):
 def findNumAnswers(pathOfMerge):
     first_words = find_first_words(pathOfMerge, [], False)
     try:
-        if find_index(first_words['text'][first_words['text'].index("שאלה"):], "ה.",
-                      ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]) != -1:
+        indexH = find_index(first_words['text'], "ה.",
+                      ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
+        indexD = find_index(first_words['text'], "ד.",
+                      ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
+        if  indexH != -1 and indexD < indexH:
             return 5, ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
+        return 4, ["שאלה", "א.", "ב.", "ג.", "ד.", "A"]
     except:
         return 4, ["שאלה", "א.", "ב.", "ג.", "ד.", "A"]

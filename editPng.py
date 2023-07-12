@@ -10,12 +10,12 @@ def reCrop(numQ, numOfAnswers, ouput_directory, detailsBetweenQ):
         for j in range(1, numOfAnswers + 1):
             pathImage = ouput_directory + "question_{}_answer_{}.png".format(i, j)
             # Crop the space between char and answer
-            cropSpaceAnswerPng(pathImage)
+            #cropSpaceAnswerPng(pathImage)
             # Crop the space between char and answer
             cropSpaceEndPng(pathImage)
             # Crop the space between the answer and the nextQuestion
-            if detailsBetweenQ:  # if there is detailes before qeustion and the next qeustion
-                cropSpaceAnswerPng(pathImage, True)
+            #if detailsBetweenQ:  # if there is detailes before qeustion and the next qeustion
+             #   cropSpaceAnswerPng(pathImage, True)
 
 
 def lastWhiteLineCoordPng(path):
@@ -101,7 +101,7 @@ def rewriteAnswer(path, i, location):
     cv2.rectangle(imageQ, (location, 0),
                   (imageQ.shape[1], imageQ.shape[0]), (255, 255, 255), -1)
     cv2.imwrite(path, imageQ)
-    cv2.putText(imageQ, text, (imageQ.shape[1] - 170, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
+    cv2.putText(imageQ, text, (location, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.imwrite(path, imageQ)
 
 
@@ -115,9 +115,10 @@ def createAnswersPage(path_answers):
 
     num_q = 0
     for cpath in path_answers:
-        if cpath[cpath.rfind("_") + 1:-4] == 'prefix':
-            num_answer = 0
-        if cpath[cpath.rfind("_") + 1:-4] == '1':
+        pathEnd = cpath[cpath.rfind("_") + 1:-4]
+        if pathEnd == 'prefix':
+            num_answer = 1
+        elif pathEnd == '1':
             num_q = cpath[cpath.find("_") + 1:cpath.rfind("_") - 7]
             blank = Image.new("RGBA", (PAGE_WIDTH, 70), (255, 255, 255, 255))
             text = "Question {} : Answer {}".format(num_q
@@ -134,42 +135,51 @@ def createAnswersPage(path_answers):
             current_path = prefix_path + fr"answer_{num_q}.png"
             blank.save(current_path)
             image_array.append(current_path)
-        num_answer += 1
+        try:
+            int(pathEnd)
+            num_answer += 1
+        except:
+            pass
 
     return editFiles.combineFilestoPages(image_array, prefix_path, 1000, "AnswerPage"), image_array
 
 #if the Q is more than a page we need to split it
-def crop_png_middle(path_to_png, start_coord,moreSmall = False):
+def crop_png_middle(path_to_png, start_coord,search_height=70,noWhite=False):
     img = Image.open(path_to_png)
     width, height = img.size
 
-    # Define the starting point and height for the search
-    start_y = start_coord
+    if noWhite:
+        split_y = start_coord
+    else:
+        # Define the starting point and height for the search
+        start_y = start_coord
 
-    search_height = 70
-    if moreSmall:
-        search_height = 40
-    # Iterate through the image and find the white lines
-    white_lines = []
-    try:
-        for y in range(start_y, height):
-            line = img.crop((0, y, width, y + 1))
-            avg_color = tuple(map(int, line.resize((1, 1)).getpixel((0, 0))))
-            if avg_color == (255, 255, 255):
-                white_lines.append(y)
-            else:
-                white_lines.clear()
-            if len(white_lines) == search_height:
-                break
-    except:
-        return False
 
-    # If no white lines were found, return the original image
-    if not len(white_lines) == search_height:
-        return False
+        # Iterate through the image and find the white lines
+        white_lines = []
+        try:
+            for y in range(start_y, height):
+                line = img.crop((0, y, width, y + 1))
+                avg_color = tuple(map(int, line.resize((1, 1)).getpixel((0, 0))))
+                if avg_color == (255, 255, 255):
+                    white_lines.append(y)
+                else:
+                    white_lines.clear()
+                if len(white_lines) == search_height:
+                    break
+        except:
+            return False
 
-    # Otherwise, split the image at the first white line found
-    split_y = white_lines[0]
+        # If no white lines were found, return the original image
+        if not len(white_lines) == search_height:
+            return False
+
+        if not white_lines[0] + 10 < height:
+            return False
+
+        # Otherwise, split the image at the first white line found
+        split_y = white_lines[0]
+
     top_img = img.crop((0, 0, width, split_y+10))
     bottom_img = img.crop((0, split_y+10, width, height))
 
