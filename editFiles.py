@@ -8,6 +8,8 @@ import zipfile
 
 import editPng
 
+ouput_directory = 'C:\\Users\\izeik\\Pictures\\Mix\\'#TODO change to relative path
+
 
 def merge_pdf(arrayPath,nameFile):
     merger = PdfFileMerger()
@@ -15,7 +17,7 @@ def merge_pdf(arrayPath,nameFile):
         # Append PDF files
         merger.append(pdf_file)
 
-    # Write out the merged PDF file
+    # Write out the merged PDF file_list
     merger.write(nameFile+".pdf")
     merger.close()
 def create_zip(files, zip_filename):
@@ -167,3 +169,10 @@ def combineFilestoPages(array_path, output_dir,numA,prefixFile = "final_page"):
         total_page_path.append(output_path_current)
         page_num += 1
     return total_page_path
+
+
+def getFilesPaths():
+    return ouput_directory,os.listdir(ouput_directory)
+
+def getOutputDirectoryPath():
+    return ouput_directory

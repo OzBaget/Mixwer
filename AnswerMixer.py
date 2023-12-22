@@ -16,38 +16,53 @@ answersId = []
 pageCode = True
 detailsBetweenQ = False
 #input_directory = "C:\\Users\\izeik\\Pictures\\אוטומטים לא מעורבל\\"
-ouput_directory = 'C:\\Users\\izeik\\Pictures\\Mix\\'#TODO change to relative path
+ouput_directory = editFiles.getOutputDirectoryPath()
+
+def mixfiles():
+    directory_path,file_list = editFiles.getFilesPaths()
+
+    # Get a list of all files in the directory
 
 
+    # Create a list of file paths by joining the directory path with each file name
 
-def mixfiles(path, numQ, numA):
     arrayAnswers = []
-    for i in range(numQ):
+    q = 1
+    while "question_{}.png".format(q) in file_list:
         arrayAnswers.append([])
-        for j in range(numA):
-            arrayAnswers[i].append(path + "question_{}_answer_{}.png".format(i + 1, j + 1))
-        np.random.shuffle(arrayAnswers[i])
-    shuffleQuestions = []
-    for i in range(numQ):
-        shuffleQuestions.append(path + "question_{}_prefix.png".format(i + 1))
-        for j in range(numA):
-            shuffleQuestions.append(arrayAnswers[i][j])
-    numQ = 1
-    for i in range(0, len(shuffleQuestions), numOfAnswers + 1):
-        if shuffleQuestions[i] == path + "question_{}_prefix.png".format(numQ):
-            numQ += 1
-            for j in range(1, numOfAnswers + 1):
-                if i == 30:
-                    pass
-                editPng.rewriteAnswer(shuffleQuestions[i + j], j,
-                                      editBox.rightFirstWordToBox(shuffleQuestions[i + j], answersId))
+        a = 1
+        while "question_{}_answer_{}.png".format(q, a) in file_list:
+            arrayAnswers[q - 1].append(directory_path + "question_{}_answer_{}.png".format(q, a))
+            a += 1
+        np.random.shuffle(arrayAnswers[q - 1])
+        q += 1
 
+    shuffleQuestions = []
+    q = 0
+    counter
+    while "question_{}.png".format(q + 1) in file_list:
+        shuffleQuestions.append(directory_path + "question_{}_prefix.png".format(q + 1))
+        a = 0
+        while "question_{}_answer_{}.png".format(q + 1, a + 1) in file_list:
+            shuffleQuestions.append(arrayAnswers[q][a])
+            editPng.rewriteAnswer(ouput_directory+"question_{}_answer_{}.png".format(q + 1, a + 1), a+1,
+                                  editBox.rightFirstWordToBox(ouput_directory+"question_{}_answer_{}.png".format(q + 1, a + 1), answersId))
+            a += 1
+        q += 1
+    pass
+
+    numA = 1
+    for pathC in enumerate(shuffleQuestions):
+        pathC = pathC[1]
+        if pathC.find("prefix") != -1:
+            continue
+        numA = pathC[pathC.rfind("_") + 1:-4]
+        editPng.rewriteAnswer(pathC, numA,
+                              editBox.rightFirstWordToBox(pathC, answersId))
     return shuffleQuestions
 
-
-
 def blendPdf():
-    # Conver test .pdf to page.png
+    # Convert test .pdf to page.png
     path_originial_pages_png = editFiles.pdf_to_png(path_original_pdf, ouput_directory)
 
     #TODO dont merge the pages because the ocr is less good, see what to do that it will be splited pages
@@ -55,24 +70,26 @@ def blendPdf():
     pathOfMerge = editFiles.combineFiles(path_originial_pages_png, ouput_directory + 'result')
 
     # Find how much q and a there are
-    #TODO: problem with Test that have 4 and 5 A
     # make each q to .png
     arrayOfQuestions,numQ = exportPng.export_questions(path_originial_pages_png,ouput_directory)
     print("Success export Q\n")
     global numOfAnswers, answersId
-    numOfAnswers, answersId = listFinds.findNumAnswers(arrayOfQuestions[0])
+    numOfAnswers, answersId = listFinds.findNumAnswers(arrayOfQuestions[0])#TODO: problem with Test that have 4 and 5 A
+    # TODO: solve it with move this lines into the for
     print("Find out how many A there is\n")
     # make each a to .png
     for pathQ in arrayOfQuestions:
         exportPng.export_answers(pathQ,answersId,ouput_directory)
         print("Success export A in Q {}\n".format(pathQ))
+
+
     # crop each a
-    editPng.reCrop(numQ, numOfAnswers, ouput_directory, detailsBetweenQ)
+    editPng.reCrop()
     print("Success Croping\n")
 
     # Mix the order of the answer
-    mixAnswers = mixfiles(ouput_directory, numQ, numOfAnswers)
-
+    mixAnswers = mixfiles()
+    print("Success Mixing\n")
     # Make answers and questions to pages .png
     paths_of_pages = editFiles.combineFilestoPages(mixAnswers, ouput_directory, numOfAnswers)
     print("Success final pages\n")
@@ -93,6 +110,7 @@ def blendPdf():
     print("Success merge pages\n")
 
 
+    '''
     editFiles.delete_files(path_originial_pages_png)
     editFiles.delete_files(paths_of_pages)
     editFiles.delete_files(path_answers)
@@ -100,6 +118,7 @@ def blendPdf():
     editFiles.delete_files(paths_of_pages_pdf)
     editFiles.delete_files([ouput_directory + 'result.png'])
     editFiles.delete_files(mixAnswers)
+    '''
     return ouput_pdf_path
 
 
@@ -109,7 +128,8 @@ def main(array_paths):
     The answers and questions are exported to PNG files.
     We mix the answers and export to PDF
     '''
-
+    global successPdf
+    successPdf = []
     failPdf = []
     for pdf_file_path in array_paths:
         global path_original_pdf
@@ -117,7 +137,6 @@ def main(array_paths):
         fileNameEnd = path_original_pdf[path_original_pdf.rfind("\\") + 1:-4] + " מעורבל" + path_original_pdf[-4:]
         try:
             #zip all the successPdf
-            global successPdf
             successPdf.append(blendPdf()+".pdf")
 
 

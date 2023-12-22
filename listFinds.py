@@ -3,7 +3,7 @@ import pytesseract
 import cv2
 
 
-def find_index(words, target_word, answersId, num=1):
+def find_index(words, target_word, answersId, num=1,skipBefore = False):
     if target_word == answersId[0]:  # for "שאלה"
         if words.count("שאלה" == 0):
             return -1
@@ -13,22 +13,23 @@ def find_index(words, target_word, answersId, num=1):
         return x[0][num - 1]
         # return False
     else:
-        if words.count(target_word) > 1:
+        '''if words.count(target_word) > 1:
             arr = np.array(words)
 
             x = np.where(arr == target_word)
             return x[0][-1]
+        '''
         if not target_word in words:
             for i, word in enumerate(words):
                 if target_word[0] == word:
                     return i
-            if answersId.index(target_word) == 1:
+            if answersId.index(target_word) == 1 or skipBefore:
                 index_before = -1
             else:
                 index_before =find_index(words,answersId[answersId.index(target_word)-1],answersId)
             try:
                 if target_word != answersId[-2]:
-                    index_after =find_index(words,answersId[answersId.index(target_word)+1],answersId,2)
+                    index_after =find_index(words,answersId[answersId.index(target_word)+1],answersId,skipBefore=True)
                     i = index_after
                     while i > 0:
                         if word != '' and target_word[0] in words[i][0]:
@@ -45,6 +46,7 @@ def find_index(words, target_word, answersId, num=1):
             for i, word in enumerate(words):
                 if index_before < i and word in ["-",".","--","\\\\","(\\"]:
                     return i
+            raise Exception("Not find {} in this image".format(target_word))
         return words.index(target_word)
 
 def find_index_answer(words):
@@ -74,6 +76,8 @@ def find_first_words(path, answersId=[], fromQ = True, disable_consecutive_q = F
             first_space = True
         elif boxes["text"][i] != "" and (first_space or boxes["line_num"][i] != line_number):
             line_number = boxes["line_num"][i]
+            if boxes['text'][i] == "שאלה" and boxes['text'][i+1] == "מספר":
+                boxes['text'][i] = "שאלה מספר"
             first_words_boxes['text'].append(boxes['text'][i])  # Extract the bounding boxes for each word
             first_words_boxes['left'].append(boxes['left'][i])  # Extract the bounding boxes for each word
             first_words_boxes['top'].append(boxes['top'][i])  # Extract the bounding boxes for each word
@@ -116,11 +120,11 @@ def findNumAnswers(pathOfMerge):
     first_words = find_first_words(pathOfMerge, [], False)
     try:
         indexH = find_index(first_words['text'], "ה.",
-                      ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
+                      ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
         indexD = find_index(first_words['text'], "ד.",
-                      ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
+                      ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
         if  indexH != -1 and indexD < indexH:
-            return 5, ["שאלה", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
-        return 4, ["שאלה", "א.", "ב.", "ג.", "ד.", "A"]
+            return 5, ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
+        return 4, ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "A"]
     except:
-        return 4, ["שאלה", "א.", "ב.", "ג.", "ד.", "A"]
+        return 4, ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "A"]

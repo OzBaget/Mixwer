@@ -5,17 +5,42 @@ from PIL import Image, ImageDraw, ImageFont
 import editFiles
 
 
-def reCrop(numQ, numOfAnswers, ouput_directory, detailsBetweenQ):
-    for i in range(1, numQ + 1):
-        for j in range(1, numOfAnswers + 1):
-            pathImage = ouput_directory + "question_{}_answer_{}.png".format(i, j)
-            # Crop the space between char and answer
-            #cropSpaceAnswerPng(pathImage)
-            # Crop the space between char and answer
-            cropSpaceEndPng(pathImage)
-            # Crop the space between the answer and the nextQuestion
-            #if detailsBetweenQ:  # if there is detailes before qeustion and the next qeustion
-             #   cropSpaceAnswerPng(pathImage, True)
+def is_image_all_white(image_path):
+    try:
+        # Open the image
+        image = Image.open(image_path)
+
+        # Get the image dimensions
+        width, height = image.size
+
+        # Define the white color in RGB format
+        white_color = (255, 255, 255)
+
+        # Iterate through each pixel in the image
+        for x in range(width):
+            for y in range(height):
+                pixel_color = image.getpixel((x, y))
+                if pixel_color != white_color:
+                    return False  # Found a non-white pixel
+
+        # If all pixels are white, return True
+        return True
+    except Exception as e:
+        print(f"Error: {e}")
+        return False  # Handle any exceptions by returning False
+
+
+def reCrop():
+    ouput_directory,list_files = editFiles.getFilesPaths()
+    for pathC in enumerate(list_files):
+        if "answer" in pathC or "prefix" in pathC:
+        # Crop the space between char and answer
+        #cropSpaceAnswerPng(pathImage)
+        # Crop the space between char and answer
+            cropSpaceEndPng(pathC)
+        # Crop the space between the answer and the nextQuestion
+        #if detailsBetweenQ:  # if there is detailes before qeustion and the next qeustion
+         #   cropSpaceAnswerPng(pathImage, True)
 
 
 def lastWhiteLineCoordPng(path):
