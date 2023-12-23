@@ -1,3 +1,5 @@
+import re
+
 import cv2
 from random import shuffle
 import editFiles
@@ -11,7 +13,6 @@ import numpy as np
 
 successPdf = []
 athOfPdf = ""
-numOfAnswers = 5
 answersId = []
 pageCode = True
 detailsBetweenQ = False
@@ -39,27 +40,42 @@ def mixfiles():
 
     shuffleQuestions = []
     q = 0
-    counter
     while "question_{}.png".format(q + 1) in file_list:
         shuffleQuestions.append(directory_path + "question_{}_prefix.png".format(q + 1))
         a = 0
         while "question_{}_answer_{}.png".format(q + 1, a + 1) in file_list:
             shuffleQuestions.append(arrayAnswers[q][a])
-            editPng.rewriteAnswer(ouput_directory+"question_{}_answer_{}.png".format(q + 1, a + 1), a+1,
-                                  editBox.rightFirstWordToBox(ouput_directory+"question_{}_answer_{}.png".format(q + 1, a + 1), answersId))
             a += 1
         q += 1
-    pass
 
-    numA = 1
-    for pathC in enumerate(shuffleQuestions):
-        pathC = pathC[1]
-        if pathC.find("prefix") != -1:
-            continue
-        numA = pathC[pathC.rfind("_") + 1:-4]
-        editPng.rewriteAnswer(pathC, numA,
-                              editBox.rightFirstWordToBox(pathC, answersId))
+
+
+    pattern = ouput_directory.replace("\\", "\\\\") + r"question_\d+_prefix.png"
+    i = 0
+    while i < len(shuffleQuestions):
+        isPerfix = re.fullmatch(pattern, shuffleQuestions[i])
+        if bool(isPerfix):
+            counterA = 1
+            i += 1
+            isPerfix = False
+            while  i < len(shuffleQuestions) and not re.fullmatch(pattern, shuffleQuestions[i]):
+                editPng.rewriteAnswer(shuffleQuestions[i], counterA,
+                                      editBox.rightFirstWordToBox(shuffleQuestions[i], answersId))
+                counterA+=1
+                i+=1
+    i+=1
     return shuffleQuestions
+
+    '''numQ = 1
+    for i in range(0, len(shuffleQuestions), numOfAnswers + 1):
+        if shuffleQuestions[i] == ouput_directory + "question_{}_prefix.png".format(numQ):
+            numQ += 1
+            for j in range(1, numOfAnswers + 1):
+                editPng.rewriteAnswer(shuffleQuestions[i + j], j,
+                                      editBox.rightFirstWordToBox(shuffleQuestions[i + j], answersId))
+'''
+
+
 
 def blendPdf():
     # Convert test .pdf to page.png
@@ -73,8 +89,8 @@ def blendPdf():
     # make each q to .png
     arrayOfQuestions,numQ = exportPng.export_questions(path_originial_pages_png,ouput_directory)
     print("Success export Q\n")
-    global numOfAnswers, answersId
-    numOfAnswers, answersId = listFinds.findNumAnswers(arrayOfQuestions[0])#TODO: problem with Test that have 4 and 5 A
+    global answersId
+    answersId = listFinds.findNumAnswers(arrayOfQuestions[0])#TODO: problem with Test that have 4 and 5 A
     # TODO: solve it with move this lines into the for
     print("Find out how many A there is\n")
     # make each a to .png
@@ -91,7 +107,7 @@ def blendPdf():
     mixAnswers = mixfiles()
     print("Success Mixing\n")
     # Make answers and questions to pages .png
-    paths_of_pages = editFiles.combineFilestoPages(mixAnswers, ouput_directory, numOfAnswers)
+    paths_of_pages = editFiles.combineFilestoPages(mixAnswers, ouput_directory)
     print("Success final pages\n")
 
     # Add answers page
@@ -110,7 +126,7 @@ def blendPdf():
     print("Success merge pages\n")
 
 
-    '''
+
     editFiles.delete_files(path_originial_pages_png)
     editFiles.delete_files(paths_of_pages)
     editFiles.delete_files(path_answers)
@@ -118,7 +134,7 @@ def blendPdf():
     editFiles.delete_files(paths_of_pages_pdf)
     editFiles.delete_files([ouput_directory + 'result.png'])
     editFiles.delete_files(mixAnswers)
-    '''
+
     return ouput_pdf_path
 
 

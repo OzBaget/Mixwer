@@ -80,7 +80,7 @@ def combineFiles(arrayPath,output_path):
 
 
 
-def combineFilestoPages(array_path, output_dir,numA,prefixFile = "final_page"):
+def combineFilestoPages(array_path, output_dir,prefixFile = "final_page"):
     page_num = 1
     total_height = 0
     images_to_combine = []
