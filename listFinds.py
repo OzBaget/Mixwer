@@ -2,7 +2,10 @@ import numpy as np
 import pytesseract
 import cv2
 
-
+def find_index_correct_ocr(words,target_word):
+    if target_word in words:
+        return words.index(target_word)
+    return -1
 def find_index(words, target_word, answersId, num=1,skipBefore = False):
     if target_word == answersId[0]:  # for "שאלה"
         if words.count("שאלה" == 0):
@@ -115,16 +118,45 @@ def start_first_words_from_Q(first_word_boxes, answersId):
     first_word_boxes['height'] = first_word_boxes['height'][index_first_q:]
     return first_word_boxes
 
+def isCorrectOCR(words):
 
+    if all(word in words for word in [ "א.", "ב.", "ג.", "ד."]) and all("\\" not in word for word in words):
+        return True
+    return False
+    #TODO continue
 def findNumAnswers(pathOfMerge):
     first_words = find_first_words(pathOfMerge, [], False)
+    if isCorrectOCR(first_words['text']):
+        indexH = find_index_correct_ocr(first_words['text'],"ה.")
+        indexD = find_index_correct_ocr(first_words['text'],"ד.")
+        indexB = find_index_correct_ocr(first_words['text'],"ב.")
+        if indexH != -1:
+            return ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
+        elif indexD != -1:
+            return ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "A"]
+        else:
+            return ["שאלה מספר", "א.", "ב.", "A"]
+
+
     try:
         indexH = find_index(first_words['text'], "ה.",
                       ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
         indexD = find_index(first_words['text'], "ד.",
                       ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
+        indexB = find_index(first_words['text'], "ב.",
+                      ["שאלה מספר", "א.", "ב.", "A"])
         if  indexH != -1 and indexD < indexH:
-            return 5, ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
-        return 4, ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "A"]
+            return ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"]
+        if indexB != -1 and indexD == -1 and indexH == -1:
+            return ["שאלה מספר", "א.", "ב.", "A"]
     except:
-        return 4, ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "A"]
+        try:
+            indexD = find_index(first_words['text'], "ד.",
+                                ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "ה.", "A"])
+            indexB = find_index(first_words['text'], "ב.",
+                      ["שאלה מספר", "א.", "ב.", "A"])
+            if indexB != -1 and indexD == -1:
+                return ["שאלה מספר", "א.", "ב.", "A"]
+            return ["שאלה מספר", "א.", "ב.", "ג.", "ד.", "A"]
+        except:
+            return ["שאלה מספר", "א.", "ב.", "A"]

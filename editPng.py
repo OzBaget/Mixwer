@@ -33,15 +33,8 @@ def is_image_all_white(image_path):
 def reCrop():
     ouput_directory,list_files = editFiles.getFilesPaths()
     for pathC in enumerate(list_files):
-        if "answer" in pathC or "prefix" in pathC:
-        # Crop the space between char and answer
-        #cropSpaceAnswerPng(pathImage)
-        # Crop the space between char and answer
-            cropSpaceEndPng(pathC)
-        # Crop the space between the answer and the nextQuestion
-        #if detailsBetweenQ:  # if there is detailes before qeustion and the next qeustion
-         #   cropSpaceAnswerPng(pathImage, True)
-
+        if "answer" in pathC[1] or "prefix" in pathC[1]:
+            cropSpaceEndPng(editFiles.getOutputDirectoryPath()+pathC[1])#TODO pathC[1]
 
 def lastWhiteLineCoordPng(path):
     img = cv2.imread(path)
@@ -126,7 +119,7 @@ def rewriteAnswer(path, i, location):
     cv2.rectangle(imageQ, (location, 0),
                   (imageQ.shape[1], imageQ.shape[0]), (255, 255, 255), -1)
     cv2.imwrite(path, imageQ)
-    cv2.putText(imageQ, text, (location, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
+    cv2.putText(imageQ, text, (1530, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.imwrite(path, imageQ)
 
 
@@ -166,7 +159,7 @@ def createAnswersPage(path_answers):
         except:
             pass
 
-    return editFiles.combineFilestoPages(image_array, prefix_path, 1000, "AnswerPage"), image_array
+    return editFiles.combineFilestoPages(image_array, prefix_path, "AnswerPage"), image_array
 
 #if the Q is more than a page we need to split it
 def crop_png_middle(path_to_png, start_coord,search_height=70,noWhite=False):
@@ -212,3 +205,37 @@ def crop_png_middle(path_to_png, start_coord,search_height=70,noWhite=False):
     top_img.save(path_to_png[:path_to_png.rfind(".")]+"_top.png" )
     bottom_img.save(path_to_png[:path_to_png.rfind(".")]+"_bottom.png")
     return [path_to_png[:path_to_png.rfind(".")]+"_top.png",path_to_png[:path_to_png.rfind(".")]+"_bottom.png"]
+
+
+def rightmost_non_white_black_pixel(path):
+    # Open the image
+    image = Image.open(path)
+
+    # Get image width and height
+    width, height = image.size
+    flagA,flagB,flagC =False,False,False
+    # Start from the rightmost column and move towards the left
+    for x in range(width - 1, -1, -1):
+        col_sum = [0, 0, 0]
+        for y in range(height):
+            pixel_value = image.getpixel((x, y))
+            col_sum[0] += pixel_value[0]  # Red channel
+            col_sum[1] += pixel_value[1]  # Green channel
+            col_sum[2] += pixel_value[2]  # Blue channel
+
+        # Calculate the average for each color channel
+        avg_r = col_sum[0] / height
+        avg_g = col_sum[1] / height
+        avg_b = col_sum[2] / height
+
+        # Check if the average of the column is not purely white (255, 255, 255)
+        if avg_r < 255 or avg_g < 255 or avg_b < 255:
+            flagA = True
+        if flagA and avg_r == 255 and avg_g == 255 and avg_b == 255:
+            flagB = True
+        if flagA and flagB and (avg_r < 255 or avg_g < 255 or avg_b < 255):
+            flagC = True
+        if flagA and flagB and flagC and avg_r == 255 and avg_g == 255 and avg_b == 255:
+            return x
+
+            # Find the rightmost non-white black pixel in the column
