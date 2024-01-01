@@ -4,27 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6eb021c8-3156-4e04-9a79-3719f1fb03a6" name="Changes" comment="maman 4">
-      <change afterPath="$PROJECT_DIR$/Final PDFs/תשעט ב א שאלון 0 מעורבל.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Final PDFs/תשפ א א מעורבל.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Final PDFs/תשפ א ב מעורבל.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/page_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/page_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/page_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/page_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/page_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/question_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/question_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/question_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/question_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/question_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Local storage of images/result.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_30__2023_21_50__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_30__2023_21_50__Changes_.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_.xml" afterDir="false" />
+    <list default="true" id="6eb021c8-3156-4e04-9a79-3719f1fb03a6" name="Changes" comment="Improve find_first_words">
+      <change afterPath="$PROJECT_DIR$/Screenshots/BadQ1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Screenshots/BadQ2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Screenshots/GoodQ.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logicalscripts/exportPng.py" beforeDir="false" afterPath="$PROJECT_DIR$/Logicalscripts/exportPng.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logicalscripts/logicalList.py" beforeDir="false" afterPath="$PROJECT_DIR$/Logicalscripts/logicalList.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +31,6 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="HARD" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/venv/Lib/site-packages/pytesseract/pytesseract.py" root0="SKIP_INSPECTION" />
@@ -87,10 +71,10 @@
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\izeik\PycharmProjects\pythonProject1" />
+      <recent name="C:\Users\izeik\PycharmProjects\pythonProject1\Used Png\Screenshots" />
       <recent name="C:\Users\izeik\PycharmProjects\pythonProject1\a\Functional scripts" />
       <recent name="C:\Users\izeik\PycharmProjects\pythonProject1\Logical scripts" />
       <recent name="C:\Users\izeik\PycharmProjects\pythonProject1\Functional scripts" />
-      <recent name="C:\Users\izeik\PycharmProjects\pythonProject1\System Files" />
     </key>
   </component>
   <component name="RunManager">
@@ -354,7 +338,14 @@
       <option name="project" value="LOCAL‎" />
       <updated>1703966155096</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL‎-00022" summary="Improve find_first_words">
+      <created>1704105788210</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL‎-00022" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1704105788210</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -384,7 +375,9 @@
     <MESSAGE value="3th try to commit&amp;push" />
     <MESSAGE value="4th try to commit&amp;push" />
     <MESSAGE value="Maman" />
-    <option name="LAST_COMMIT_MESSAGE" value="Maman" />
+    <MESSAGE value="Improve logicalList.findNumAnswers and logicalList.isCorrectOCR" />
+    <MESSAGE value="Improve find_first_words" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improve find_first_words" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -400,9 +393,9 @@
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Logicalscripts/logicalList.py</url>
-          <line>157</line>
-          <option name="timeStamp" value="26" />
+          <url>file://$PROJECT_DIR$/Main.py</url>
+          <line>23</line>
+          <option name="timeStamp" value="29" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
