@@ -43,7 +43,7 @@ def createAnswersPage(path_answers):
     return combineFilestoPages(image_array, prefix_path, "AnswerPage"), image_array
 
 
-def reCrop():
+def cropAnswers():
     ouput_directory,list_files = functionalFiles.getFilesPaths()
     for pathC in enumerate(list_files):
         if "answer" in pathC[1] or "prefix" in pathC[1]:

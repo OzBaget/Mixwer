@@ -16,7 +16,7 @@ def export_questions(array_path, ouput_directory):
         lastQ = False
         page_num_Q = 1
         open_img = cv2.imread(img)
-        first_words = logicalList.find_first_words(img, [Qsign], False, True)
+        first_words = logicalList.find_first_words(img, [Qsign], False)
         if first_words['text'].count(Qsign) == 0:  # If Qsign still doesn't appear, continue to the next page
             if not first_Q:
                 continue
@@ -66,7 +66,7 @@ def export_questions(array_path, ouput_directory):
 
 def export_answers(pathRoot, answersId, ouput_directory):
     image = cv2.imread(pathRoot)
-    first_words = logicalList.find_first_words(pathRoot, answersId, False)
+    first_words = logicalList.find_first_words(pathRoot, answersId, False,True)
     halfPath = pathRoot[pathRoot.rfind("\\") + 1:]
     numQ = int(halfPath[9:-4])
     if numQ == 10:

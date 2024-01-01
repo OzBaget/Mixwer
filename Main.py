@@ -4,11 +4,8 @@ from FunctionalScripts import *
 
 
 successPdf = []
-athOfPdf = ""
 answersId = []
-pageCode = True
-detailsBetweenQ = False
-# input_directory = "C:\\Users\\izeik\\Pictures\\אוטומטים לא מעורבל\\"
+
 output_directory = "Local storage of images\\"
 
 
@@ -33,7 +30,7 @@ def blendPdf():
         print("Success export A in Q {}\n".format(pathQ))
 
     # crop each a
-    logicalPng.reCrop()
+    logicalPng.cropAnswers()
     print("Success Croping\n")
 
     # Mix the order of the answer
