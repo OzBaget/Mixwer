@@ -1,12 +1,13 @@
 
 from Logicalscripts import *
 from FunctionalScripts import *
-
+import os
 
 successPdf = []
 answersId = []
 
 output_directory = "Local storage of images\\"
+output_final_directory = "Final PDFs\\"
 
 
 
@@ -50,7 +51,7 @@ def blendPdf():
         paths_of_pages_pdf.append(functionalFiles.png_to_pdf(current_page))
     print("Success convert pages to.pdf\n")
 
-    ouput_pdf_path = "Final PDFs\\" + path_original_pdf[path_original_pdf.rfind("/") + 1:-4] + " מעורבל"
+    ouput_pdf_path = output_final_directory + path_original_pdf[path_original_pdf.rfind("/") + 1:-4] + " מעורבל"
     functionalFiles.merge_pdf(paths_of_pages_pdf,
                         ouput_pdf_path)
     print("Success merge pages\n")
@@ -66,6 +67,9 @@ def main(array_paths):
     The answers and questions are exported to PNG files.
     We mix the answers and export to PDF
     '''
+    # Ensure output directories exist
+    os.makedirs(output_directory, exist_ok = True)
+    os.makedirs(output_final_directory, exist_ok = True)
     global successPdf
     successPdf = []
     failPdf = []

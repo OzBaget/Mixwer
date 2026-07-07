@@ -18,24 +18,18 @@ or
 
 ## Setup
 
-Clone the project: git clone [https://github.com/OzBaget/Mixwer](https://github.com/OzBaget/Mixwer)
+Clone the project: git clone [https://github.com/OzBaget/Mixwer](https://github.com/OzBaget/Mixwer).
 
-Navigate to the project directory: cd /path/to/TestsShuffler
-
-Install dependencies: Activate the setup.py file and install all the necessary packages: pip install .
+Install dependencies: Install all the requirments.txt dependencies.
 
 Install Tesseract OCR:
-
-Download and install Tesseract OCR from here.
+Download and install Tesseract OCR from [here](https://github.com/UB-Mannheim/tesseract/wiki).
 After installation, navigate to C:\Program Files\Tesseract-OCR\tessdata.
-Remove the heb.traineddata file and replace it with the provided heb.traineddata file from the project.
-Configure Blender Paths:
-Navigate to blender/paths directory in the project.
-Update Blender paths in the path file if necessary. Default paths might suffice.
+Add this [heb.traineddata](https://github.com/tesseract-ocr/tessdata/blob/main/heb.traineddata) file.
+
 Install Poppler:
-Download Poppler from here.
-Extract the zip file to a location you can remember.
-Update the path file to include the location of Poppler:
-poppler_path=r"C:\Program Files (x86)\poppler-23.11.0\Library\bin"
-Run the server: python server/server.py
-Ensure you follow each step carefully to set up the project correctly.
+Download Poppler from [here](https://github.com/oschwartz10612/poppler-windows/releases/latest).
+Extract the zip and add the Library\lib folder to your path.
+
+Run UI.py and select the pdf file/s
+
